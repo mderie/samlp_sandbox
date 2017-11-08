@@ -1,0 +1,128 @@
+
+In /home/sam/Rack/plugins/Fundamental/src/Delay.cpp :
+
+...
+struct Delay : Module {
+	enum ParamIds {
+		TIME_PARAM,
+		FEEDBACK_PARAM,
+		COLOR_PARAM,
+		MIX_PARAM,
+		NUM_PARAMS
+	};
+...
+
+==> 4 parameters (+ NUM_PARAMS probably for total),
+here rotary buttons, but could be rendered as switch as well see
+/home/sam/Rack/plugins/luckyxxl/src/Quantize.cpp :
+
+...
+struct Quantize : Module {
+	enum ParamIds {
+		DISPLAY_MODE,
+		HOLD,
+		NUM_PARAMS
+...
+
+
+Guess that we need first to iterate on the modules then on their parameters.
+In order to assess their min & max then push them values from midi device (0-255 ?)
+
+
+
+In /home/sam/Rack/include/rack.hpp :
+
+...
+template <class TModuleWidget>
+...
+template <class TParam>
+...
+
+
+
+In /home/sam/Rack/src/engine.cpp :
+
+...
+namespace rack {
+...
+static std::vector<Module*> modules;
+...
+template <class TModuleWidget>
+Model *createModel(Plugin *plugin, std::string slug, std::string name)
+{
+	struct TModel : Model
+        {
+		ModuleWidget *createModuleWidget()
+                {
+			ModuleWidget *moduleWidget = new TModuleWidget();
+			moduleWidget->model = this;
+			return moduleWidget;
+		}
+	};
+	Model *model = new TModel();
+	model->plugin = plugin;
+	model->slug = slug;
+	model->name = name;
+	// Create bi-directional association between the Plugin and Model
+	if (plugin)
+        {
+		plugin->models.push_back(model);
+	}
+	return model;
+}
+...
+
+
+
+In /home/sam/Rack/include/app.hpp (Module <> Model <> ModuleWidget <> Plugin) :
+
+...
+struct Model;
+struct ModuleWidget : OpaqueWidget {
+	Model *model = NULL;
+	/** Owns the module pointer */
+	Module *module = NULL;
+
+	std::vector<Port*> inputs;
+	std::vector<Port*> outputs;
+	std::vector<ParamWidget*> params;
+
+	~ModuleWidget();
+	void setModule(Module *module);
+
+
+
+In /home/sam/Rack/include/engine.hpp (the good one) :
+
+...
+struct Module {
+	std::vector<Param> params;
+	std::vector<Input> inputs;
+	std::vector<Output> outputs;
+...
+
+
+
+In /home/sam/Rack/include/plugin.hpp (maybe no need for hack through modules) :
+
+extern std::list<Plugin*> gPlugins;
+
+
+
+In /home/sam/Rack/src/app/RackWidget.cpp :
+
+json_t *RackWidget::toJson() {
+	// root
+	json_t *rootJ = json_object();
+
+	// version
+	json_t *versionJ = json_string(gApplicationVersion.c_str());
+	json_object_set_new(rootJ, "version", versionJ);
+
+	// modules
+	json_t *modulesJ = json_array();
+	std::map<ModuleWidget*, int> moduleIds;
+	int moduleId = 0;
+	for (Widget *w : moduleContainer->children) {
+		ModuleWidget *moduleWidget = dynamic_cast<ModuleWidget*>(w);
+...

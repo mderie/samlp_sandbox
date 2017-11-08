@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="MidiMapper" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/MidiMapper" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/MidiMapper" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="../../include/app.hpp" />
+		<Unit filename="../../include/asset.hpp" />
+		<Unit filename="../../include/components.hpp" />
+		<Unit filename="../../include/dsp.hpp" />
+		<Unit filename="../../include/engine.hpp" />
+		<Unit filename="../../include/gui.hpp" />
+		<Unit filename="../../include/math.hpp" />
+		<Unit filename="../../include/plugin.hpp" />
+		<Unit filename="../../include/rack.hpp" />
+		<Unit filename="../../include/settings.hpp" />
+		<Unit filename="../../include/util.hpp" />
+		<Unit filename="../../include/widgets.hpp" />
+		<Unit filename="Source/MidiMapper.cpp" />
+		<Unit filename="Source/MidiMapper.hpp" />
+		<Unit filename="Source/RtMidi.cpp" />
+		<Unit filename="Source/RtMidi.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
