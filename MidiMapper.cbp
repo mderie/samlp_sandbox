@@ -44,6 +44,8 @@
 		<Unit filename="../../include/settings.hpp" />
 		<Unit filename="../../include/util.hpp" />
 		<Unit filename="../../include/widgets.hpp" />
+		<Unit filename="Source/ConfigurationFiles.cpp" />
+		<Unit filename="Source/ConfigurationFiles.hpp" />
 		<Unit filename="Source/MidiMapper.cpp" />
 		<Unit filename="Source/MidiMapper.hpp" />
 		<Unit filename="Source/RtMidi.cpp" />

@@ -1,11 +1,10 @@
 
 #include "rack.hpp"
-#include "engine.hpp"
+#include "engine.hpp" // Care : modified but not necessary
 
 // Exceptionally, JUCE will be replaced by a tiny lib...
-#include "RtMidi.h"
-
 //#include "../JuceLibraryCode/JuceHeader.h"
+#include "RtMidi.h"
 
 using namespace rack;
 
@@ -48,8 +47,8 @@ private:
 };
 */
 
-// const std::string midiInputDeviceName = "BerhingerBcr2000"
-const std::string midiInputDeviceName = "NovationLaunchpad";
+//const std::string midiInputDeviceName = "BerhingerBcr2000"
+//const std::string midiInputDeviceName = "NovationLaunchpad";
 
 // Source = http://www.cplusplus.com/forum/general/33669/
 template <typename T, unsigned size>
@@ -60,8 +59,8 @@ inline unsigned sizeOfArray(const T(&)[size]) { return size; }
 // All strings must be preceded by midi three bytes code
 // TBC : the input valus is the button code for the first two bytes then the current value for the third
 // TBD : the output values are all in the 0-100 intervall ?
-const std::string rotaryButtons[] =
-{
-"\u0060LFO.FREQ",
-"\u0060VCA.MAIN"
-};
+//const std::string rotaryButtons[] =
+//{
+//"\u0060LFO.FREQ",
+//"\u0060VCA.MAIN"
+//};

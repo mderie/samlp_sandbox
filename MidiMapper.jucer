@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="Pgw1xD" name="MidiMapper" displaySplashScreen="1" reportAppUsage="1"
+              splashScreenColour="Dark" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.MidiMapper" includeBinaryInAppConfig="1"
+              cppLanguageStandard="11" jucerVersion="5.1.1">
+  <MAINGROUP id="WbNnFE" name="MidiMapper">
+    <GROUP id="{E8B6F81E-0228-7115-1FB6-BAEBAD2E0998}" name="Source">
+      <FILE id="yGJjAW" name="MidiMapper.cpp" compile="1" resource="0" file="Source/MidiMapper.cpp"/>
+      <FILE id="rmIN3E" name="MidiMapper.h" compile="0" resource="0" file="Source/MidiMapper.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="MidiMapper"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="MidiMapper"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../library/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../library/JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>

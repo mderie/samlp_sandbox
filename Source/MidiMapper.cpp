@@ -1,8 +1,19 @@
 
+// Mine
 #include "MidiMapper.hpp"
+#include "ConfigurationFiles.hpp"
+// Rack
+#include "util.hpp"
+// System
 #include <ctime>
 #include <sstream>
 #include <string>
+#include <map>
+
+ConfigurationFile cf("/home/sam/Rack/plugins/MidiMapper/MidiMapper.ini");
+
+// The key here have the same format as in the configuration file : module_name.parameter_index
+std::map<std::string, QuantityWidget*> parameters;
 
 // C like simple logger
 void log(const char *s)
@@ -15,6 +26,7 @@ void log(const char *s)
   timeinfo = localtime(&rawtime);
   strftime(timestamp, sizeof(timestamp), "%d/%m/%Y %H:%M:%S", timeinfo);
 
+  //TODO: Get the current folder ?
   std::string fullFilename = "/home/sam/Rack/plugins/MidiMapper/MidiMapper.log";
   FILE *fLog = fopen(fullFilename.c_str(), "a");
   fprintf(fLog, "%s => %s\n", timestamp, s);
@@ -29,10 +41,77 @@ std::string intToStr(int value)
 	return ss.str();
 }
 
-//TODO:
-// Replace JUCE library by an alternate tiny midi one !
-
 Plugin *plugin;
+
+void dumpParam(QuantityWidget* w)
+{
+	std::string s = stringf("value = %f; minValue = %f; maxValue = %f; defaultValue = %f; text = %s", w->value, w->minValue, w->maxValue, w->defaultValue, w->getText().c_str());
+	log(s.c_str());
+}
+
+void dumpParameters()
+{
+	for (auto const &kvp : parameters)
+	{
+		log(stringf("Found a match for key = %s", kvp.first.c_str()).c_str());
+	}
+}
+
+void dumpRack()
+{
+	if (gRackWidget == NULL)
+	{
+		log("Argh leaving early !-)");
+		return;
+	}
+
+  parameters.clear();
+  std::string key;
+
+	for (Widget *w : gRackWidget->moduleContainer->children)
+	{
+		log("Found ModuleWidget !");
+		ModuleWidget *moduleWidget = dynamic_cast<ModuleWidget*>(w);
+
+		log("Found model(aka module) :");
+		log(moduleWidget->model->slug.c_str());
+
+		// Care struct Param just holds a float.µ
+		// Check struct ParamWidget which inherit from QuantityWidget then call getText
+		// And maybe add some missing getters !
+		for (size_t i = 0; i < moduleWidget->params.size(); i++)
+		{
+			log(stringf("Found param[%d]", i).c_str());
+			dumpParam(moduleWidget->params[i]);
+			// This compile but Parameter does not have name :( And the getText method return the value
+			//log(moduleWidget->params[i]->label.c_str());
+			// Sample call :
+			// addParam(createParam<NKK>(Vec(14, 129), module, p0wr::SWITCH_PARAM, 0.0, 1.0, 0.0));
+
+			key = moduleWidget->model->slug + "." + intToStr(i);
+			if (cf.valueExists("Mapping", key))
+			{
+				parameters[key] = moduleWidget->params[i];
+			}
+		}
+	}
+
+	dumpParameters();
+}
+
+void dumpConfig()
+{
+	log("Entering dumpConfig");
+	//log(cf.keyValue("Misc","debug").c_str());
+  for (std::string& section : cf.sections())
+  {
+		for (std::string& key : cf.keyNames(section))
+		{
+			log(cf.keyValue(section, key).c_str());
+		}
+  }
+  log("Leaving dumpConfig");
+}
 
 void init(rack::Plugin *p)
 {
@@ -77,22 +156,9 @@ void init(rack::Plugin *p)
         }
         */
 
+        dumpConfig();
         // Go directly from the rack ! Maybe too early... gRackWidget is NULL now :(
-        if (gRackWidget == NULL)
-        {
-          log("Argh leaving early !-)");
-          return;
-        }
-
-        for (Widget *w : gRackWidget->moduleContainer->children)
-        {
-          log("Found ModuleWidget :");
-          ModuleWidget *moduleWidget = dynamic_cast<ModuleWidget*>(w);
-
-          log("Found model(aka module) :");
-          log(moduleWidget->model->slug.c_str());
-        }
-
+        dumpRack();
         log("Leaving init");
 }
 
@@ -141,6 +207,8 @@ OnOff::OnOff()
 	params.resize(NUM_PARAMS);
 	inputs.resize(NUM_INPUTS);
 	outputs.resize(NUM_OUTPUTS);
+
+	dumpRack();
 	log("Leaving OnOff ctor");
 }
 
@@ -161,7 +229,8 @@ void OnOff::step()
 
 		case 1:
 		{
-			//TODO
+			//TODO: Bad place for introspection... Called tons of time
+			//dumpRack();
 			break;
 		}
 	}
