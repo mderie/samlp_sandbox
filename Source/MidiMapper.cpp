@@ -9,15 +9,20 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <limits>
 
 ConfigurationFile cf("/home/sam/Rack/plugins/MidiMapper/MidiMapper.ini");
 
 // The key here have the same format as in the configuration file : module_name.parameter_index
 std::map<std::string, QuantityWidget*> parameters;
 
+#define LOGF(s, ...) log(stringf(s, __VA_ARGS__).c_str())
+
 // C like simple logger
 void log(const char *s)
 {
+	if (cf.keyValue("Misc", "Debug") != "1") return;
+
   time_t rawtime;
   struct tm* timeinfo;
   char timestamp[32]; // Sure there is more C++ way to do this...
@@ -162,6 +167,18 @@ void init(rack::Plugin *p)
         log("Leaving init");
 }
 
+//TODO: Replace Power by MidiMapper
+struct p0wrModeLight : ModeValueLight
+{
+	p0wrModeLight()
+	{
+		addColor(COLOR_BLACK_TRANSPARENT);
+		addColor(COLOR_RED);
+		addColor(COLOR_YELLOW);
+		addColor(COLOR_BLUE);
+	}
+};
+
 OnOffWidget::OnOffWidget()
 {
 	log("Entering OnOffWidget ctor");
@@ -193,6 +210,10 @@ OnOffWidget::OnOffWidget()
 
 	addParam(createParam<NKK>(Vec(14, 129), module, OnOff::SWITCH_PARAM, 0.0, 1.0, 0.0)); // NKK ?
 
+	addChild(createValueLight<LargeLight<p0wrModeLight>>(Vec(20,  51), &module->LEDs[0]));
+	addChild(createValueLight<LargeLight<p0wrModeLight>>(Vec(20,  75), &module->LEDs[1]));
+	addChild(createValueLight<LargeLight<p0wrModeLight>>(Vec(20, 100), &module->LEDs[2]));
+
 	log("Leaving OnOffWidget ctor");
 }
 
@@ -217,46 +238,103 @@ OnOff::~OnOff()
 	log("Entering / Leaving OnOffWidget dtor");
 }
 
+void midiInCallback(double deltatime, std::vector<unsigned char> *message, void *dummy)
+{
+  unsigned int nBytes = message->size();
+  for (unsigned int i=0; i<nBytes; i++)
+  {
+    //std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
+    log(stringf("Midi input byte[%d] = %d", i, (int)message->at(i)).c_str());
+	}
+
+  if ((nBytes = 3) and (((char) message->at(0)) == '\xCC'))
+  {
+		std::string key = std::string(1, (char) message->at(1));
+		std::string value = cf.keyValue("Mapping", key);
+    if (value != "")
+    {
+			log(stringf("key = %s found ! value = %s", key.c_str(), value.c_str()).c_str());
+
+			int midiValue = (int) message->at(2); // (127-0)/midiValue = (max-min)/y ==> y = (midiVale*(max-min))/127
+			parameters[value]->setValue((midiValue * (parameters[value]->maxValue - parameters[value]->minValue)) / 127);
+    }
+	}
+}
+
+unsigned int OnOff::dumpMidi(const std::string& nameLike)
+{
+	unsigned int i, result;
+	unsigned int portCount = midiIn->getPortCount();
+	std::string portName;
+
+	LOGF("dumpMidi => Entering %u", portCount);
+	result = std::numeric_limits<unsigned int>::max();
+	for (i=0; i<portCount; i++)
+	{
+    portName = midiIn->getPortName(i);
+    log(stringf("Midi input %u = %s", i, portName.c_str()).c_str());
+
+    if (portName.find(nameLike) != std::string::npos)
+    {
+			log("Midi device found");
+			result = i;
+		}
+  }
+
+  log(stringf("dumpMidi => Leaving result = %u", result).c_str());
+  return result;
+}
+
+void OnOff::startListen(unsigned int index)
+{
+	if (index == std::numeric_limits<unsigned int>::max()) return;
+
+	log("startListen => Entering");
+	midiIn->openPort(index);
+	midiIn->setCallback(&midiInCallback);
+	midiIn->ignoreTypes(false, false, false);
+	log("startListen => Leaving");
+}
+
+void OnOff::stopListen()
+{
+	log("stopListen => Entering");
+	midiIn->closePort();
+	delete midiIn;
+	midiIn = 0;
+	log("stopListen => Leaving");
+}
+
 void OnOff::step()
 {
 	switch ((int)roundf(params[SWITCH_PARAM].value))
 	{
 		case 0:
 		{
-			//TODO
+			//TODO: Off
+			LEDs[0] = 0;
+			LEDs[1] = 0;
+			LEDs[2] = 0;
+
+			if (midiIn)
+			{
+				stopListen();
+			}
 			break;
 		}
-
 		case 1:
 		{
-			//TODO: Bad place for introspection... Called tons of time
-			//dumpRack();
+			//TODO: On but bad place for introspection... Called tons of time
+			LEDs[0] = 1;
+			LEDs[1] = 2;
+			LEDs[2] = 3;
+
+			if (!midiIn)
+			{
+				midiIn = new RtMidiIn();
+				startListen(dumpMidi(cf.keyValue("MidiInDevice", "NameLike")));
+			}
 			break;
 		}
 	}
 }
-
-/*
-void mycallback(double deltatime, std::vector<unsigned char> *message, void *dummy)
-{
-  unsigned int nBytes = message->size();
-  for ( unsigned int i=0; i<nBytes; i++ )
-    std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-  if ( nBytes > 0 )
-    std::cout << "stamp = " << deltatime << std::endl;
-}
-*/
-
-/*
-void MIC::handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message)
-{
-	log("Incomming message = ...");
-	const juce::uint8* p = message.getRawData();
-	std::string s;
-	for (int i = 0; i < message.getRawDataSize(); i++)
-	{
-		s = intToStr(static_cast<int>(*(p + i)));
-		log(s.c_str());
-	}
-}
-*/

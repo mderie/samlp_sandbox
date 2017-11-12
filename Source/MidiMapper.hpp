@@ -35,7 +35,14 @@ struct OnOff : Module
 
 	OnOff();
 	~OnOff();
+
+	RtMidiIn *midiIn = 0;
+	float LEDs[3] = {};
 	void step();
+
+	unsigned int dumpMidi(const std::string& nameLike);
+	void startListen(unsigned int index);
+	void stopListen();
 };
 
 /*
