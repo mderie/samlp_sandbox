@@ -46,6 +46,13 @@ std::string intToStr(int value)
 	return ss.str();
 }
 
+std::string hexToStr(int value)
+{
+	std::stringstream ss;
+	ss << std::hex << value;
+	return ss.str();
+}
+
 Plugin *plugin;
 
 void dumpParam(QuantityWidget* w)
@@ -244,19 +251,34 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
   for (unsigned int i=0; i<nBytes; i++)
   {
     //std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-    log(stringf("Midi input byte[%d] = %d", i, (int)message->at(i)).c_str());
+    log(stringf("Midi input byte[%u] = %u", i, (unsigned int)message->at(i)).c_str());
 	}
 
-  if ((nBytes = 3) and (((char) message->at(0)) == '\xCC'))
+	LOGF("nBytes = %u", nBytes);
+  //if ((nBytes == 3) and (((char) message->at(0)) == '\xCC'))
+  if ((nBytes == 3) and (((char) message->at(0)) == '\xB0'))
   {
-		std::string key = std::string(1, (char) message->at(1));
+		std::string key = hexToStr((int) message->at(1));
 		std::string value = cf.keyValue("Mapping", key);
+		std::string mf = cf.keyValue("MultiplicationFactor", key);
+		LOGF("key = %s; value = %s", key.c_str(), value.c_str());
+
     if (value != "")
     {
 			log(stringf("key = %s found ! value = %s", key.c_str(), value.c_str()).c_str());
 
 			int midiValue = (int) message->at(2); // (127-0)/midiValue = (max-min)/y ==> y = (midiVale*(max-min))/127
-			parameters[value]->setValue((midiValue * (parameters[value]->maxValue - parameters[value]->minValue)) / 127);
+			float outValue = (midiValue * (parameters[value]->maxValue - parameters[value]->minValue)) / 127;
+			LOGF("midiValue = %d; parameters[value]->maxValue = %f; parameters[value]->minValue = %f; outValue = %f", midiValue, parameters[value]->maxValue, parameters[value]->minValue, outValue);
+
+			if (mf != "")
+			{
+				LOGF("outValue = %f", outValue);
+				outValue *= std::stoi(cf.keyValue("MultiplicationFactor", key), 0);
+			}
+
+			LOGF("outValue = %f", outValue);
+			parameters[value]->setValue(outValue);
     }
 	}
 }
