@@ -1,13 +1,13 @@
 
 #ifndef CONFIGURATION_FILES
 #define CONFIGURATION_FILES
+// Code from another personal project with several configuration files...
 
 #include <string>
 #include <map> // We could also use unordered map here...
 #include <vector>
 
-// Base class for all configuration files...
-//TODO: Implement default value and section support
+//TODO: Implement default value ?
 class ConfigurationFile
 {
 private:

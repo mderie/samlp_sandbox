@@ -1,7 +1,6 @@
 
 // Mine
 #include "MidiMapper.hpp"
-#include "ConfigurationFiles.hpp"
 // Rack
 #include "util.hpp"
 // System
@@ -11,17 +10,24 @@
 #include <map>
 #include <limits>
 
-ConfigurationFile cf("/home/sam/Rack/plugins/MidiMapper/MidiMapper.ini");
+Plugin *plugin = 0; // My own instance !-)
+
+//ConfigurationFile cf("/home/sam/Rack/plugins/MidiMapper/MidiMapper.ini");
+ConfigurationFile* cf = 0;
 
 // The key here have the same format as in the configuration file : module_name.parameter_index
 std::map<std::string, QuantityWidget*> parameters;
 
+// Log formatted... Almost similar to printf :) But ... can not the format string cannot be empty !-(
 #define LOGF(s, ...) log(stringf(s, __VA_ARGS__).c_str())
 
 // C like simple logger
 void log(const char *s)
 {
-	if (cf.keyValue("Misc", "Debug") != "1") return;
+	if (cf and (cf->keyValue("Misc", "Debug") == "0"))
+	{
+		return;
+	}
 
   time_t rawtime;
   struct tm* timeinfo;
@@ -31,104 +37,16 @@ void log(const char *s)
   timeinfo = localtime(&rawtime);
   strftime(timestamp, sizeof(timestamp), "%d/%m/%Y %H:%M:%S", timeinfo);
 
-  //TODO: Get the current folder ?
-  std::string fullFilename = "/home/sam/Rack/plugins/MidiMapper/MidiMapper.log";
+  std::string fullFilename = assetPlugin(plugin, "MidiMapper.log"); // Care : we need the plugin instance here...
   FILE *fLog = fopen(fullFilename.c_str(), "a");
   fprintf(fLog, "%s => %s\n", timestamp, s);
   fclose(fLog);
 }
 
-// Can't understand why there is no shorter way to perform this conversion...
-std::string intToStr(int value)
-{
-	std::stringstream ss;
-	ss << value;
-	return ss.str();
-}
-
-std::string hexToStr(int value)
-{
-	std::stringstream ss;
-	ss << std::hex << value;
-	return ss.str();
-}
-
-Plugin *plugin;
-
-void dumpParam(QuantityWidget* w)
-{
-	std::string s = stringf("value = %f; minValue = %f; maxValue = %f; defaultValue = %f; text = %s", w->value, w->minValue, w->maxValue, w->defaultValue, w->getText().c_str());
-	log(s.c_str());
-}
-
-void dumpParameters()
-{
-	for (auto const &kvp : parameters)
-	{
-		log(stringf("Found a match for key = %s", kvp.first.c_str()).c_str());
-	}
-}
-
-void dumpRack()
-{
-	if (gRackWidget == NULL)
-	{
-		log("Argh leaving early !-)");
-		return;
-	}
-
-  parameters.clear();
-  std::string key;
-
-	for (Widget *w : gRackWidget->moduleContainer->children)
-	{
-		log("Found ModuleWidget !");
-		ModuleWidget *moduleWidget = dynamic_cast<ModuleWidget*>(w);
-
-		log("Found model(aka module) :");
-		log(moduleWidget->model->slug.c_str());
-
-		// Care struct Param just holds a float.µ
-		// Check struct ParamWidget which inherit from QuantityWidget then call getText
-		// And maybe add some missing getters !
-		for (size_t i = 0; i < moduleWidget->params.size(); i++)
-		{
-			log(stringf("Found param[%d]", i).c_str());
-			dumpParam(moduleWidget->params[i]);
-			// This compile but Parameter does not have name :( And the getText method return the value
-			//log(moduleWidget->params[i]->label.c_str());
-			// Sample call :
-			// addParam(createParam<NKK>(Vec(14, 129), module, p0wr::SWITCH_PARAM, 0.0, 1.0, 0.0));
-
-			key = moduleWidget->model->slug + "." + intToStr(i);
-			if (cf.valueExists("Mapping", key))
-			{
-				parameters[key] = moduleWidget->params[i];
-			}
-		}
-	}
-
-	dumpParameters();
-}
-
-void dumpConfig()
-{
-	log("Entering dumpConfig");
-	//log(cf.keyValue("Misc","debug").c_str());
-  for (std::string& section : cf.sections())
-  {
-		for (std::string& key : cf.keyNames(section))
-		{
-			log(cf.keyValue(section, key).c_str());
-		}
-  }
-  log("Leaving dumpConfig");
-}
-
 void init(rack::Plugin *p)
 {
-	log("Entering init");
 	plugin = p;
+	log("Entering init"); // We need the plugin instance :)
 	plugin->slug = "MidiMapper";
 	plugin->name = "MidiMapper";
 	createModel<OnOffWidget>(plugin, "MidiMapper OnOff", "MidiMapper OnOff");
@@ -162,19 +80,98 @@ void init(rack::Plugin *p)
            {
              log("Found model(aka module) :");
              log(model->slug.c_str());
-
-             //TODO: Loop on params !
            }
         }
         */
 
-        dumpConfig();
         // Go directly from the rack ! Maybe too early... gRackWidget is NULL now :(
-        dumpRack();
+        //dumpRack();
         log("Leaving init");
 }
 
-//TODO: Replace Power by MidiMapper
+// Can't understand why there is no shorter way to perform this conversion...
+std::string intToStr(int value)
+{
+	std::stringstream ss;
+	ss << value;
+	return ss.str();
+}
+
+std::string hexToStr(int value)
+{
+	std::stringstream ss;
+	ss << std::hex << value;
+	return ss.str();
+}
+
+void OnOff::dumpParam(QuantityWidget* w)
+{
+	LOGF("value = %f; minValue = %f; maxValue = %f; defaultValue = %f; text = %s", w->value, w->minValue, w->maxValue, w->defaultValue, w->getText().c_str());
+}
+
+void OnOff::dumpParameters()
+{
+	for (auto const &kvp : parameters)
+	{
+		LOGF("Found a match for key = %s", kvp.first.c_str());
+	}
+}
+
+void OnOff::dumpRack()
+{
+	if (gRackWidget == NULL)
+	{
+		log("Argh leaving early !-)");
+		return;
+	}
+
+  parameters.clear();
+  std::string key;
+
+	for (Widget *w : gRackWidget->moduleContainer->children)
+	{
+		log("Found ModuleWidget !");
+		ModuleWidget *moduleWidget = dynamic_cast<ModuleWidget*>(w);
+
+		log("Found model(aka module) :");
+		log(moduleWidget->model->slug.c_str());
+
+		// Care struct Param just holds a float.µ
+		// Check struct ParamWidget which inherit from QuantityWidget then call getText
+		// And maybe add some missing getters !
+		for (size_t i = 0; i < moduleWidget->params.size(); i++)
+		{
+			LOGF("Found param[%d]", i);
+			dumpParam(moduleWidget->params[i]);
+			// This compile but Parameter does not have name :( And the getText method return the value
+			//log(moduleWidget->params[i]->label.c_str());
+			// Sample call :
+			// addParam(createParam<NKK>(Vec(14, 129), module, p0wr::SWITCH_PARAM, 0.0, 1.0, 0.0));
+
+			key = moduleWidget->model->slug + "." + intToStr(i);
+			if (cf->valueExists("Mapping", key))
+			{
+				parameters[key] = moduleWidget->params[i];
+			}
+		}
+	}
+
+	dumpParameters();
+}
+
+void OnOff::dumpConfig()
+{
+	log("Entering dumpConfig");
+  for (std::string& section : cf->sections())
+  {
+		for (std::string& key : cf->keyNames(section))
+		{
+			LOGF("[%s]%s=%s", section.c_str(), key.c_str(), cf->keyValue(section, key).c_str());
+		}
+  }
+  log("Leaving dumpConfig");
+}
+
 struct p0wrModeLight : ModeValueLight
 {
 	p0wrModeLight()
@@ -189,9 +186,8 @@ struct p0wrModeLight : ModeValueLight
 OnOffWidget::OnOffWidget()
 {
 	log("Entering OnOffWidget ctor");
-	rmi = NULL;
 
-        /*
+  /*
 	for (size_t i = 0; i < sizeOfArray(rotaryButtons); i++)
 	{
 		log(rotaryButtons[i].c_str());
@@ -204,13 +200,13 @@ OnOffWidget::OnOffWidget()
 	}
   */
 
-	OnOff *module = new OnOff();
+	OnOff* module = new OnOff();
 	setModule(module);
 	box.size = Vec(15 * 4, 380);
 
 	{
 		Panel *panel = new LightPanel();
-		panel->backgroundImage = Image::load("plugins/MidiMapper/res/switch.png");
+		panel->backgroundImage = Image::load(assetPlugin(plugin, "res/switch.png"));
 		panel->box.size = box.size;
 		addChild(panel);
 	}
@@ -236,13 +232,19 @@ OnOff::OnOff()
 	inputs.resize(NUM_INPUTS);
 	outputs.resize(NUM_OUTPUTS);
 
+	cf = new ConfigurationFile(assetPlugin(plugin, "MidiMapper.ini"));
+	dumpConfig();
 	dumpRack();
+
 	log("Leaving OnOff ctor");
 }
 
 OnOff::~OnOff()
 {
-	log("Entering / Leaving OnOffWidget dtor");
+	log("Entering OnOff dtor");
+	delete cf;
+	cf = 0;
+	log("Leaving OnOff dtor");
 }
 
 void midiInCallback(double deltatime, std::vector<unsigned char> *message, void *dummy)
@@ -250,32 +252,38 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
   unsigned int nBytes = message->size();
   for (unsigned int i=0; i<nBytes; i++)
   {
-    //std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-    log(stringf("Midi input byte[%u] = %u", i, (unsigned int)message->at(i)).c_str());
+    LOGF("Midi input byte[%u] = %u", i, (unsigned int)message->at(i));
 	}
 
 	LOGF("nBytes = %u", nBytes);
-  //if ((nBytes == 3) and (((char) message->at(0)) == '\xCC'))
   if ((nBytes == 3) and (((char) message->at(0)) == '\xB0'))
   {
 		std::string key = hexToStr((int) message->at(1));
-		std::string value = cf.keyValue("Mapping", key);
-		std::string mf = cf.keyValue("MultiplicationFactor", key);
-		LOGF("key = %s; value = %s", key.c_str(), value.c_str());
+		std::string value = cf->keyValue("Mapping", key);
+		std::string sf = cf->keyValue("SignFactor", key);
+		LOGF("key = %s; value = %s; sf = %s", key.c_str(), value.c_str(), sf.c_str());
 
     if (value != "")
     {
-			log(stringf("key = %s found ! value = %s", key.c_str(), value.c_str()).c_str());
+			LOGF("key = %s found ! value = %s", key.c_str(), value.c_str());
 
-			int midiValue = (int) message->at(2); // (127-0)/midiValue = (max-min)/y ==> y = (midiVale*(max-min))/127
+			int midiValue = (int) (message->at(2));
+			if (sf == "1")
+			{
+				midiValue -= 64;
+			}
+
+			// ((127 - 0) or (64 to -63)) * midiValue = (max - min) / outValue ==> outValue = (midiVale * (max - min)) / (127 or 127 :)
 			float outValue = (midiValue * (parameters[value]->maxValue - parameters[value]->minValue)) / 127;
 			LOGF("midiValue = %d; parameters[value]->maxValue = %f; parameters[value]->minValue = %f; outValue = %f", midiValue, parameters[value]->maxValue, parameters[value]->minValue, outValue);
 
-			if (mf != "")
+			/*
+			if (sf != "")
 			{
 				LOGF("outValue = %f", outValue);
-				outValue *= std::stoi(cf.keyValue("MultiplicationFactor", key), 0);
+				outValue *= std::stof(sf);
 			}
+			*/
 
 			LOGF("outValue = %f", outValue);
 			parameters[value]->setValue(outValue);
@@ -283,6 +291,7 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
 	}
 }
 
+// Return the index of the midi device or maxint. Care midiIn must be created before !
 unsigned int OnOff::dumpMidi(const std::string& nameLike)
 {
 	unsigned int i, result;
@@ -294,7 +303,7 @@ unsigned int OnOff::dumpMidi(const std::string& nameLike)
 	for (i=0; i<portCount; i++)
 	{
     portName = midiIn->getPortName(i);
-    log(stringf("Midi input %u = %s", i, portName.c_str()).c_str());
+    LOGF("Midi input %u = %s", i, portName.c_str());
 
     if (portName.find(nameLike) != std::string::npos)
     {
@@ -303,7 +312,7 @@ unsigned int OnOff::dumpMidi(const std::string& nameLike)
 		}
   }
 
-  log(stringf("dumpMidi => Leaving result = %u", result).c_str());
+  LOGF("dumpMidi => Leaving result = %u", result);
   return result;
 }
 
@@ -331,9 +340,8 @@ void OnOff::step()
 {
 	switch ((int)roundf(params[SWITCH_PARAM].value))
 	{
-		case 0:
+		case 0: // Off
 		{
-			//TODO: Off
 			LEDs[0] = 0;
 			LEDs[1] = 0;
 			LEDs[2] = 0;
@@ -344,17 +352,17 @@ void OnOff::step()
 			}
 			break;
 		}
-		case 1:
+
+		case 1: // On... But we are at a bad place for introspection... Called tons of time !
 		{
-			//TODO: On but bad place for introspection... Called tons of time
 			LEDs[0] = 1;
 			LEDs[1] = 2;
 			LEDs[2] = 3;
 
 			if (!midiIn)
 			{
-				midiIn = new RtMidiIn();
-				startListen(dumpMidi(cf.keyValue("MidiInDevice", "NameLike")));
+				midiIn = new RtMidiIn(); // Care dumpMidi needs it !
+				startListen(dumpMidi(cf->keyValue("MidiInDevice", "NameLike")));
 			}
 			break;
 		}

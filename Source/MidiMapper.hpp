@@ -1,16 +1,20 @@
 
 #include "rack.hpp"
-#include "engine.hpp" // Care : modified but not necessary
 
-// Exceptionally, JUCE will be replaced by a tiny lib...
+// Care : modified but finally not necessary
+//#include "engine.hpp"
+
+// Exceptionally, JUCE will be replaced here by a tiny lib...
 //#include "../JuceLibraryCode/JuceHeader.h"
 #include "RtMidi.h"
+
+// Little helper .ini file reader
+#include "ConfigurationFiles.hpp"
 
 using namespace rack;
 
 struct OnOffWidget : ModuleWidget
 {
-	RtMidiIn* rmi; // To be moved on the Module ?
 	OnOffWidget();
 	~OnOffWidget();
 };
@@ -36,11 +40,15 @@ struct OnOff : Module
 	OnOff();
 	~OnOff();
 
-	RtMidiIn *midiIn = 0;
+	RtMidiIn* midiIn = 0;
 	float LEDs[3] = {};
 	void step();
 
 	unsigned int dumpMidi(const std::string& nameLike);
+	void dumpRack();
+	void dumpConfig();
+	void dumpParam(QuantityWidget* w);
+	void dumpParameters();
 	void startListen(unsigned int index);
 	void stopListen();
 };
@@ -59,7 +67,7 @@ private:
 
 // Source = http://www.cplusplus.com/forum/general/33669/
 template <typename T, unsigned size>
-inline unsigned sizeOfArray(const T(&)[size]) { return size; }
+inline unsigned int sizeOfArray(const T(&)[size]) { return size; }
 
 //TODO: use a real configuration file !
 // Care replace \u that stands for Unicode with \? for one byt only

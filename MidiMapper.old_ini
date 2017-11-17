@@ -1,47 +1,30 @@
-; Care the mapping is one way only meaning that changing by the mouse (or the keyboard ?)
-; a rotary button mapped inside the rack will not be updated in the external midi controller
-
 [MidiInDevice]
 ; match will be made with "std::string::find" so name like '*2000*' will match my own BCR2000
 NameLike=2000
-
 [Mapping]
 ; Incoming midi messages have the following form :
 ; 0xCC (or 0xB0 ?);[0x01-0x08, 0x81-0xC0];[0x00-0x7F]
 ; So we associate the rotary button index to something like "module name"."param index"
-; VCO.0 is the on/off switch !
 
-; On/off switch !
+; It is the on/off switch !
 ;0=VCO.0
 
-; ?
 1=VCO.1
-
-; FREQ
 2=VCO.2
-
-; ?
 3=VCO.3
-
-; P. WIDTH
 4=VCO.4
-
-; ?
 5=VCO.5
-
-; PW CV
 6=VCO.6
-
 5=VCF.1
-
-; Test purpose...
 81=NotFound.2
-
-[SignFactor]
-; It must be the same key as in the Mapping section
-; 1 means that the given parameter in the plugin is signed. So midi input value from [0, 127] must be changed to [-63, 64]
-2=1
-
+[MultiplicationFactor]
+; Must be the same key as in the Mapping section, it does scaling of the input value
+;0=100000
+1=100000
+[ScalingFactor]
+; Must be the same key as in the Mapping section, it does scaling of the input value
+; (a value bigger than 1.0 means extend the min-max range value defined in the given plugin & parameter
+2=1.2
 [Misc]
 ; 1 means dump all the module names and parameter indices (since they don't have name :(
 ; 0 means minimum log :)

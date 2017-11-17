@@ -11,7 +11,7 @@ ConfigurationFile::ConfigurationFile(const std::string& fullFilename)
 	size_t pos;
 	std::string section;
 
-	std::cout << "fullFilename = " << fullFilename << std::endl;
+	//std::cout << "fullFilename = " << fullFilename << std::endl;
 
 	ifs.open(fullFilename);
 	while(!ifs.eof())

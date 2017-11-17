@@ -29,3 +29,6 @@ ipch/
 *.pdb
 *.tlog
 *.idb
+
+# Code::Block files
+*.layout
