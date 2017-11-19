@@ -7,7 +7,7 @@ The project aims to map the rotary buttons of "exotic" midi device into buttons 
 Motivation : since I'm the proud owner of a BCR2000 from Behringer (32 endless rotary buttons among other nice feature),
 I wanna to freely assign any button to anyone inside the Rack (so any button in any module).
 
-==> Mission accomplished, it is done & it works !
+==> Mission accomplished, it is done & it works ! Warning : it is a POC, ie : it lacks try...catch !
 
 The idea is to put the debug mode to 1 in order to check how the RtMidi tiny library names your midi in device.
 Put this in the MidiMapper.ini. Then for each module that you want to control externally, well you have to find
@@ -20,4 +20,5 @@ Many thanks to the git "initiative" (the project is here http://github.com/mderi
 and obviously to the VCV Rack author (I've started to write a software modular synth, but then I discover Rack :)
 I took also the liberty to reuse part of the AV500 switch module...
 
-Last but not least, I'm reachable here : mderie@gmail.com (member of TFL-TDV on the demoscene, but who cares ?-)
+Last but not least, I'm reachable here : mderie@gmail.com
+(Sam Le Pirate member of TFL-TDV on the demoscene, but who cares ?-)

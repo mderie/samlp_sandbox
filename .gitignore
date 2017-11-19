@@ -13,6 +13,7 @@
 *.obj
 *.dat
 *.o
+*.d
 
 # Visual C++ cache files
 ipch/
