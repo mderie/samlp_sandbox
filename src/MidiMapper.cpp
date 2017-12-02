@@ -29,18 +29,18 @@ void log(const char *s)
 		return;
 	}
 
-  time_t rawtime;
-  struct tm* timeinfo;
-  char timestamp[32]; // Sure there is more C++ way to do this...
+	time_t rawtime;
+	struct tm* timeinfo;
+	char timestamp[32]; // Sure there is more C++ way to do this...
 
-  time(&rawtime);
-  timeinfo = localtime(&rawtime);
-  strftime(timestamp, sizeof(timestamp), "%d/%m/%Y %H:%M:%S", timeinfo);
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(timestamp, sizeof(timestamp), "%d/%m/%Y %H:%M:%S", timeinfo);
 
-  std::string fullFilename = assetPlugin(plugin, "MidiMapper.log"); // Care : we need the plugin instance here...
-  FILE *fLog = fopen(fullFilename.c_str(), "a");
-  fprintf(fLog, "%s => %s\n", timestamp, s);
-  fclose(fLog);
+	std::string fullFilename = assetPlugin(plugin, "MidiMapper.log"); // Care : we need the plugin instance here...
+	FILE *fLog = fopen(fullFilename.c_str(), "a");
+	fprintf(fLog, "%s => %s\n", timestamp, s);
+	fclose(fLog);
 }
 
 void init(rack::Plugin *p)
@@ -48,8 +48,14 @@ void init(rack::Plugin *p)
 	plugin = p;
 	log("Entering init"); // We need the plugin instance :)
 	plugin->slug = "MidiMapper";
-	plugin->name = "MidiMapper";
-	createModel<OnOffWidget>(plugin, "MidiMapper OnOff", "MidiMapper OnOff");
+	//plugin->name = "MidiMapper";
+	
+	#ifdef VERSION
+	p->version = TOSTRING(VERSION);
+	#endif
+	p->website = "https://github.com/mderie/MidiMapper";
+	
+	p->addModel(createModel<OnOffWidget>("MidiMapper", "MidiMapper OnOff", "MidiMapper OnOff", UTILITY_TAG));
 
         // Not necessary... Strange visual bug !
 	//createModel<MidiMapper>(plugin, "MidiMapper", "MidiMapper");
@@ -104,12 +110,12 @@ std::string hexToStr(int value)
 	return ss.str();
 }
 
-void OnOff::dumpParam(QuantityWidget* w)
+void OnOffModule::dumpParam(QuantityWidget* w)
 {
 	LOGF("value = %f; minValue = %f; maxValue = %f; defaultValue = %f; text = %s", w->value, w->minValue, w->maxValue, w->defaultValue, w->getText().c_str());
 }
 
-void OnOff::dumpParameters()
+void OnOffModule::dumpParameters()
 {
 	for (auto const &kvp : parameters)
 	{
@@ -117,7 +123,7 @@ void OnOff::dumpParameters()
 	}
 }
 
-void OnOff::dumpRack()
+void OnOffModule::dumpRack()
 {
 	if (gRackWidget == NULL)
 	{
@@ -159,9 +165,9 @@ void OnOff::dumpRack()
 	dumpParameters();
 }
 
-void OnOff::dumpConfig()
+void OnOffModule::dumpConfig()
 {
-	log("Entering dumpConfig");
+	log("Entering OnOffModule::dumpConfig");
   for (std::string& section : cf->sections())
   {
 		for (std::string& key : cf->keyNames(section))
@@ -169,9 +175,10 @@ void OnOff::dumpConfig()
 			LOGF("[%s]%s=%s", section.c_str(), key.c_str(), cf->keyValue(section, key).c_str());
 		}
   }
-  log("Leaving dumpConfig");
+  log("Leaving OnOffModule::dumpConfig");
 }
 
+/*
 struct p0wrModeLight : ModeValueLight
 {
 	p0wrModeLight()
@@ -182,6 +189,7 @@ struct p0wrModeLight : ModeValueLight
 		addColor(COLOR_BLUE);
 	}
 };
+*/
 
 OnOffWidget::OnOffWidget()
 {
@@ -200,10 +208,10 @@ OnOffWidget::OnOffWidget()
 	}
   */
 
-	OnOff* module = new OnOff();
+	OnOffModule* module = new OnOffModule();
 	setModule(module);
 	box.size = Vec(15 * 4, 380);
-
+	// Strange...
 	{
 		Panel *panel = new LightPanel();
 		panel->backgroundImage = Image::load(assetPlugin(plugin, "res/switch.png"));
@@ -211,11 +219,11 @@ OnOffWidget::OnOffWidget()
 		addChild(panel);
 	}
 
-	addParam(createParam<NKK>(Vec(14, 129), module, OnOff::SWITCH_PARAM, 0.0, 1.0, 0.0)); // NKK ?
+	addParam(createParam<NKK>(Vec(14, 129), module, OnOffModule::SWITCH_PARAM, 0.0, 1.0, 0.0)); // NKK ?
 
-	addChild(createValueLight<LargeLight<p0wrModeLight>>(Vec(20,  51), &module->LEDs[0]));
-	addChild(createValueLight<LargeLight<p0wrModeLight>>(Vec(20,  75), &module->LEDs[1]));
-	addChild(createValueLight<LargeLight<p0wrModeLight>>(Vec(20, 100), &module->LEDs[2]));
+	addChild(createLight<LargeLight<RedLight>>(Vec(23,  54), module, OnOffModule::RED_LIGHT));
+	addChild(createLight<LargeLight<YellowLight>>(Vec(23,  78), module, OnOffModule::YEL_LIGHT));
+	addChild(createLight<LargeLight<BlueLight>>(Vec(23, 102), module, OnOffModule::BLU_LIGHT));
 
 	log("Leaving OnOffWidget ctor");
 }
@@ -225,46 +233,47 @@ OnOffWidget::~OnOffWidget()
 	log("Entering / Leaving OnOffWidget dtor");
 }
 
-OnOff::OnOff()
+OnOffModule::OnOffModule()
 {
-	log("Entering OnOff ctor");
+	log("Entering OnOffModule ctor");
 	params.resize(NUM_PARAMS);
 	inputs.resize(NUM_INPUTS);
 	outputs.resize(NUM_OUTPUTS);
+	lights.resize(NUM_LIGHTS);
 
 	cf = new ConfigurationFile(assetPlugin(plugin, "MidiMapper.ini"));
 	dumpConfig();
 	dumpRack();
 
-	log("Leaving OnOff ctor");
+	log("Leaving OnOffModule ctor");
 }
 
-OnOff::~OnOff()
+OnOffModule::~OnOffModule()
 {
-	log("Entering OnOff dtor");
+	log("Entering OnOffModule dtor");
 	delete cf;
 	cf = 0;
-	log("Leaving OnOff dtor");
+	log("Leaving OnOffModule dtor");
 }
 
 void midiInCallback(double deltatime, std::vector<unsigned char> *message, void *dummy)
 {
-  unsigned int nBytes = message->size();
-  for (unsigned int i=0; i<nBytes; i++)
-  {
-    LOGF("Midi input byte[%u] = %u", i, (unsigned int)message->at(i));
+	unsigned int nBytes = message->size();
+	for (unsigned int i=0; i<nBytes; i++)
+	{
+	LOGF("Midi input byte[%u] = %u", i, (unsigned int)message->at(i));
 	}
 
 	LOGF("nBytes = %u", nBytes);
-  if ((nBytes == 3) and (((char) message->at(0)) == '\xB0'))
-  {
+	if ((nBytes == 3) and (((char) message->at(0)) == '\xB0'))
+	{
 		std::string key = hexToStr((int) message->at(1));
 		std::string value = cf->keyValue("Mapping", key);
 		std::string sf = cf->keyValue("SignFactor", key);
 		LOGF("key = %s; value = %s; sf = %s", key.c_str(), value.c_str(), sf.c_str());
 
-    if (value != "")
-    {
+		if (value != "")
+		{
 			LOGF("key = %s found ! value = %s", key.c_str(), value.c_str());
 
 			int midiValue = (int) (message->at(2));
@@ -287,64 +296,64 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
 
 			LOGF("outValue = %f", outValue);
 			parameters[value]->setValue(outValue);
-    }
+		}
 	}
 }
 
 // Return the index of the midi device or maxint. Care midiIn must be created before !
-unsigned int OnOff::dumpMidi(const std::string& nameLike)
+unsigned int OnOffModule::dumpMidi(const std::string& nameLike)
 {
 	unsigned int i, result;
 	unsigned int portCount = midiIn->getPortCount();
 	std::string portName;
 
-	LOGF("dumpMidi => Entering %u", portCount);
+	LOGF("OnOffModule::dumpMidi => Entering %u", portCount);
 	result = std::numeric_limits<unsigned int>::max();
 	for (i=0; i<portCount; i++)
 	{
-    portName = midiIn->getPortName(i);
-    LOGF("Midi input %u = %s", i, portName.c_str());
+		portName = midiIn->getPortName(i);
+		LOGF("Midi input %u = %s", i, portName.c_str());
 
-    if (portName.find(nameLike) != std::string::npos)
-    {
+		if (portName.find(nameLike) != std::string::npos)
+		{
 			log("Midi device found");
 			result = i;
 		}
-  }
+	}
 
-  LOGF("dumpMidi => Leaving result = %u", result);
-  return result;
+	LOGF("OnOffModule::dumpMidi => Leaving result = %u", result);
+	return result;
 }
 
-void OnOff::startListen(unsigned int index)
+void OnOffModule::startListen(unsigned int index)
 {
 	if (index == std::numeric_limits<unsigned int>::max()) return;
 
-	log("startListen => Entering");
+	log("OnOffModule::startListen => Entering");
 	midiIn->openPort(index);
 	midiIn->setCallback(&midiInCallback);
 	midiIn->ignoreTypes(false, false, false);
-	log("startListen => Leaving");
+	log("OnOffModule::startListen => Leaving");
 }
 
-void OnOff::stopListen()
+void OnOffModule::stopListen()
 {
-	log("stopListen => Entering");
+	log("OnOffModule::stopListen => Entering");
 	midiIn->closePort();
 	delete midiIn;
 	midiIn = 0;
-	log("stopListen => Leaving");
+	log("OnOffModule::stopListen => Leaving");
 }
 
-void OnOff::step()
+void OnOffModule::step()
 {
 	switch ((int)roundf(params[SWITCH_PARAM].value))
 	{
 		case 0: // Off
 		{
-			LEDs[0] = 0;
-			LEDs[1] = 0;
-			LEDs[2] = 0;
+			lights[RED_LIGHT].value = 0;
+			lights[YEL_LIGHT].value = 0;
+			lights[BLU_LIGHT].value = 0;
 
 			if (midiIn)
 			{
@@ -355,9 +364,9 @@ void OnOff::step()
 
 		case 1: // On... But we are at a bad place for introspection... Called tons of time !
 		{
-			LEDs[0] = 1;
-			LEDs[1] = 2;
-			LEDs[2] = 3;
+			lights[RED_LIGHT].value = 1;
+			lights[YEL_LIGHT].value = 1;
+			lights[BLU_LIGHT].value = 1;
 
 			if (!midiIn)
 			{

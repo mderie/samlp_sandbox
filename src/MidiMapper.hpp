@@ -19,7 +19,7 @@ struct OnOffWidget : ModuleWidget
 	~OnOffWidget();
 };
 
-struct OnOff : Module
+struct OnOffModule : Module
 {
 	enum ParamIds
 	{
@@ -36,9 +36,17 @@ struct OnOff : Module
 	{
 		NUM_OUTPUTS
 	};
+	
+	enum LightIds
+	{
+		RED_LIGHT,
+		YEL_LIGHT,
+		BLU_LIGHT,
+		NUM_LIGHTS
+	};	
 
-	OnOff();
-	~OnOff();
+	OnOffModule();
+	~OnOffModule();
 
 	RtMidiIn* midiIn = 0;
 	float LEDs[3] = {};

@@ -1,10 +1,15 @@
 
-SOURCES = $(wildcard Source/*.cpp)
+SOURCES = $(wildcard src/*.cpp)
 
 include ../../plugin.mk
 
-FLAGS += -D__LINUX_ALSA__
-LDFLAGS += -lpthread -lasound
+ifeq ($(OS),Windows_NT)
+	FLAGS += -D__WINDOWS_MM__
+	LDFLAGS += -lwinmm
+else
+	FLAGS += -D__LINUX_ALSA__
+	LDFLAGS += -lpthread -lasound
+endif
 
 dist: all
 	mkdir -p dist/MidiMapper
