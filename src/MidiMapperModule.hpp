@@ -1,29 +1,19 @@
 
-#include "rack.hpp"
+#ifndef MIDI_MAPPER_MODULE
+#define MIDI_MAPPER_MODULE
 
 // Care : modified but finally not necessary
 //#include "engine.hpp"
 
-// Exceptionally, JUCE will be replaced here by a tiny lib...
-//#include "../JuceLibraryCode/JuceHeader.h"
-#include "RtMidi.h"
+#include "rack.hpp"
+//using namespace rack;
 
-// Little helper .ini file reader
-#include "ConfigurationFiles.hpp"
-
-using namespace rack;
-
-struct OnOffWidget : ModuleWidget
-{
-	OnOffWidget();
-	~OnOffWidget();
-};
-
-struct OnOffModule : Module
+struct MidiMapperModule : rack::Module
 {
 	enum ParamIds
 	{
-		SWITCH_PARAM,
+		MAP_PARAM,
+		LEARN_PARAM,
 		NUM_PARAMS
 	};
 
@@ -36,29 +26,56 @@ struct OnOffModule : Module
 	{
 		NUM_OUTPUTS
 	};
-	
+
 	enum LightIds
 	{
-		RED_LIGHT,
-		YEL_LIGHT,
-		BLU_LIGHT,
+		M_RED_LIGHT,
+		M_YEL_LIGHT,
+		M_BLU_LIGHT,
+		L_RED_LIGHT,
+		L_YEL_LIGHT,
+		L_BLU_LIGHT,
 		NUM_LIGHTS
-	};	
+	};
 
-	OnOffModule();
-	~OnOffModule();
+	// Global OnOff switches
+	bool m_mapMode = false;
+	bool m_learnMode = false;
 
-	RtMidiIn* midiIn = 0;
-	float LEDs[3] = {};
-	void step();
+	//float LEDs[3] = {};
 
-	unsigned int dumpMidi(const std::string& nameLike);
+	// VCO sniffer part :)
+  bool isLearning;
+  bool hasFound;
+  int stepCounter;
+  int animateCounter;
+  int timeoutSeconds;
+  int holdPositionSeconds;
+  rack::Rect mouseAreaPrevious;
+  rack::ParamWidget *paramWidgetFound;
+
+	MidiMapperModule();
+	~MidiMapperModule();
+	// Relace ctor & dtor...
+	//void prelude();
+	//void postlude();
+
+	void step() override;
+
+	unsigned int dumpMidiDevices(const std::string& nameLike);
 	void dumpRack();
 	void dumpConfig();
-	void dumpParam(QuantityWidget* w);
+	void dumpParam(rack::QuantityWidget* w);
 	void dumpParameters();
+
 	void startListen(unsigned int index);
 	void stopListen();
+
+	void initSniff(bool learning);
+	void startSniff();
+
+	//bool mapMode { return m_mapMode; }
+	//bool learnMode { return m_learnMode; }
 };
 
 /*
@@ -87,3 +104,5 @@ inline unsigned int sizeOfArray(const T(&)[size]) { return size; }
 //"\u0060LFO.FREQ",
 //"\u0060VCA.MAIN"
 //};
+
+#endif // MIDI_MAPPER_MODULE

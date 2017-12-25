@@ -59,7 +59,7 @@ ConfigurationFile::ConfigurationFile(const std::string& fullFilename)
 
 ConfigurationFile::~ConfigurationFile()
 {
-	m_contents.clear();
+	m_contents.clear(); // Shall I propagate the clear ?
 }
 
 std::vector<std::string> ConfigurationFile::sections()
@@ -100,4 +100,30 @@ bool ConfigurationFile::valueExists(const std::string& section, const std::strin
 	}
 
 	return false;
+}
+
+void ConfigurationFile::insert(const std::string& section, const std::string& key, const std::string& value)
+{
+	m_contents[section][key] = value;
+}
+
+void ConfigurationFile::remove(const std::string& section, const std::string& key)
+{
+  m_contents[section].erase(key);
+}
+
+void ConfigurationFile::save(const std::string &fullFilename)
+{
+  std::ofstream ofs(fullFilename);
+
+ 	for(auto const& section : m_contents)
+	{
+		ofs << "[" << section.first << "]" << std::endl;
+		for(auto const &key : section.second)
+		{
+    	ofs << key.first << " = " << key.second << std::endl;
+    }
+	}
+
+	ofs.close();
 }

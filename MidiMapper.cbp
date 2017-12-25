@@ -44,12 +44,18 @@
 		<Unit filename="../../include/settings.hpp" />
 		<Unit filename="../../include/util.hpp" />
 		<Unit filename="../../include/widgets.hpp" />
-		<Unit filename="Source/ConfigurationFiles.cpp" />
-		<Unit filename="Source/ConfigurationFiles.hpp" />
-		<Unit filename="Source/MidiMapper.cpp" />
-		<Unit filename="Source/MidiMapper.hpp" />
-		<Unit filename="Source/RtMidi.cpp" />
-		<Unit filename="Source/RtMidi.h" />
+		<Unit filename="src/ConfigurationFiles.cpp" />
+		<Unit filename="src/ConfigurationFiles.hpp" />
+		<Unit filename="src/MidiMapperModule.cpp" />
+		<Unit filename="src/MidiMapperModule.hpp" />
+		<Unit filename="src/MidiMapperWidget.cpp" />
+		<Unit filename="src/MidiMapperWidget.hpp" />
+		<Unit filename="src/MidiMapperPlugin.cpp" />
+		<Unit filename="src/MidiMapperPlugin.hpp" />
+                <Unit filename="src/TinyLogger.cpp" />
+		<Unit filename="src/TinyLogger.hpp" />
+		<Unit filename="src/RtMidi.cpp" />
+		<Unit filename="src/RtMidi.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
