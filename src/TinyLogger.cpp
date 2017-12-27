@@ -8,6 +8,7 @@
 #include "rack.hpp"
 using namespace rack;
 
+// Some globals...
 extern Plugin *thisPlugin;
 extern ConfigurationFile *cf;
 

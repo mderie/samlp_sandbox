@@ -1,8 +1,8 @@
 
+#include "ConfigurationFiles.hpp"
+
 #include <iostream>
 #include <fstream>
-
-#include "ConfigurationFiles.hpp"
 
 ConfigurationFile::ConfigurationFile(const std::string& fullFilename)
 {
@@ -54,7 +54,9 @@ ConfigurationFile::ConfigurationFile(const std::string& fullFilename)
 			*/
 		}
 	}
+
 	ifs.close();
+	m_isModified = false;
 }
 
 ConfigurationFile::~ConfigurationFile()
@@ -104,12 +106,20 @@ bool ConfigurationFile::valueExists(const std::string& section, const std::strin
 
 void ConfigurationFile::insert(const std::string& section, const std::string& key, const std::string& value)
 {
+	// If everything already exists, this is a no-op but we set the modified flag anyway !
 	m_contents[section][key] = value;
+	m_isModified = true;
 }
 
 void ConfigurationFile::remove(const std::string& section, const std::string& key)
 {
+	if ((m_contents.find(section) == m_contents.end()) or (m_contents[section].find(key) == m_contents[section].end()))
+	{
+		return;
+	}
+
   m_contents[section].erase(key);
+  m_isModified = true;
 }
 
 void ConfigurationFile::save(const std::string &fullFilename)

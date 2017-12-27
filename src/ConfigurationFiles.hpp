@@ -13,6 +13,7 @@ class ConfigurationFile
 {
 private:
   std::map<std::string, std::map<std::string, std::string> > m_contents; // The "> > " means I'm old school :)
+  bool m_isModified;
 public:
 	ConfigurationFile(const std::string &fullFilename); // RAII !
 	//Not needed ? virtual ~ConfigurationFile();
@@ -27,6 +28,7 @@ public:
 	//bool keyExists(std::string& section; std::string& key);
 	bool valueExists(const std::string& section, const std::string& value);
 
+	bool isModified() { return m_isModified; }
 	void insert(const std::string& section, const std::string& key, const std::string& value);
 	void remove(const std::string& section, const std::string& key);
 	void save(const std::string &fullFilename);
