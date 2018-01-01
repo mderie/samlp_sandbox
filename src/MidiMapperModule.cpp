@@ -30,6 +30,8 @@ ParamWidget *thisMapSwitch = 0;
 ParamWidget *thisLearnSwitch = 0;
 RtMidiIn *rtmidiIn = 0;
 
+bool rackAlreadyDumped = false;
+
 // The key here have the same format as in the configuration file : module_name.parameter_index
 std::map<std::string, QuantityWidget*> parameters;
 
@@ -150,7 +152,7 @@ MidiMapperModule::MidiMapperModule() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUT
 	logf("MidiMapperModule ctor ==> Entering");
 
 	dumpConfig();
-	dumpRack();
+	// dumpRack(); ==> Too early Dom !-)
 	initSniff(false);
 
 	logf("MidiMapperModule ctor ==> Leaving");
@@ -188,6 +190,12 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
 
 		if ((thisModule->m_mapMode) and (value != ""))
 		{
+                  if (parameters.find(value) == parameters.end())
+                  {
+                    LOGF("Strange : parameters[%s] is undefined", value.c_str());
+                    return;
+                  }
+
 			LOGF("midiInCallback ==> key = %s found ! value = %s", key.c_str(), value.c_str());
 
 			int midiValue = (int) (message->at(2));
@@ -284,6 +292,13 @@ void MidiMapperModule::stopListen()
 // Care : we are here at a bad place for introspection... Called tons of time !
 void MidiMapperModule::step()
 {
+
+  if (!rackAlreadyDumped)
+  {
+    dumpRack(); // must be done once and when all modules are loaded :)
+    rackAlreadyDumped = true;
+  }
+
 	switch ((int)roundf(params[MAP_PARAM].value))
 	{
 		case 0:

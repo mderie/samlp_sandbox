@@ -29,10 +29,10 @@ MidiMapperWidget::MidiMapperWidget()
   */
 
   thisModule = new MidiMapperModule(); // Generate a strange warning... About deprecated :(
-	this->module = nullptr; // Fix ? for the random bug below... Or not :(
+	//this->module = nullptr; // Fix ? for the random bug below... Or not :(
 	setModule(thisModule);
 	box.size = Vec(4 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT); // (4 * 15, 380)
-	// Strange construction
+	// AMHA : strange construction...
 	{
 		Panel *panel = new LightPanel();
 		panel->backgroundImage = Image::load(assetPlugin(thisPlugin, "res/switch.png"));
