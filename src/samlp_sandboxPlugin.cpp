@@ -1,6 +1,7 @@
 
-#include "MidiMapperPlugin.hpp"
+#include "samlp_sandboxPlugin.hpp"
 #include "MidiMapperWidget.hpp"
+#include "ConsoleWidget.hpp"
 #include "ConfigurationFiles.hpp"
 #include "TinyLogger.hpp"
 

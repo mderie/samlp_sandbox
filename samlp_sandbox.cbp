@@ -50,8 +50,12 @@
 		<Unit filename="src/MidiMapperModule.hpp" />
 		<Unit filename="src/MidiMapperWidget.cpp" />
 		<Unit filename="src/MidiMapperWidget.hpp" />
-		<Unit filename="src/MidiMapperPlugin.cpp" />
-		<Unit filename="src/MidiMapperPlugin.hpp" />
+		<Unit filename="src/ConsoleModule.cpp" />
+		<Unit filename="src/ConsoleModule.hpp" />
+		<Unit filename="src/ConsoleWidget.cpp" />
+		<Unit filename="src/ConsoleWidget.hpp" />
+		<Unit filename="src/samlp_sandboxPlugin.cpp" />
+		<Unit filename="src/samlp_sandboxPlugin.hpp" />
                 <Unit filename="src/TinyLogger.cpp" />
 		<Unit filename="src/TinyLogger.hpp" />
 		<Unit filename="src/RtMidi.cpp" />

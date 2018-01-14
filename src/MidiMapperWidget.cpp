@@ -6,7 +6,7 @@
 
 using namespace rack;
 
-// Some globals...
+// Some globals... To rename !!!
 extern Plugin *thisPlugin;
 extern Module *thisModule;
 extern ParamWidget *thisMapSwitch;

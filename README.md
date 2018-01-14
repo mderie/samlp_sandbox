@@ -1,10 +1,12 @@
-Welcome to MidiMapper a plugin for VCV Rack - A bunch of C++ lines coded while the children sleep...
+Welcome to MidiMapper / Console plugins for VCV Rack - A bunch of C++ lines coded while the children sleep...
 
 
 
-NB : I didn't release anything since decades, hope you'll like it as much as I had fun write it !-)
+Preliminary note : I didn't release anything since decades, hope you'll like it as much as I had fun write it !-)
 
-The project aims to map rotary buttons of "exotic" midi device into buttons inside the any rack plugins.
+
+
+The MidiMapper project aims to map rotary buttons of "exotic" midi device into buttons inside the any rack plugins.
 
 Motivation : since I'm the proud owner of a BCR2000 from Behringer (32 endless rotary buttons among other nice feature),
 I wanna to freely assign any button to any "pot" inside the rack whatever the target module.
@@ -36,3 +38,9 @@ by cherry picking the content of the "Mapping" section :)
 
 ==> Again I've achieved my personal goal...
 I know that there is here and there some false assumptions (ie : dangling pointer :(
+
+
+
+The console project is the perfect companion tool : it displays every events inside the rack
+
+...
