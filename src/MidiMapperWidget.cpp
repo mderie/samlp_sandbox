@@ -6,11 +6,10 @@
 
 using namespace rack;
 
-// Some globals... To rename !!!
 extern Plugin *thisPlugin;
-extern Module *thisModule;
-extern ParamWidget *thisMapSwitch;
-extern ParamWidget *thisLearnSwitch;
+extern Module *midiMapperModule;
+extern ParamWidget *mapSwitch;
+extern ParamWidget *learnSwitch;
 
 MidiMapperWidget::MidiMapperWidget()
 {
@@ -28,9 +27,9 @@ MidiMapperWidget::MidiMapperWidget()
 	}
   */
 
-  thisModule = new MidiMapperModule(); // Generate a strange warning... About deprecated :(
+  midiMapperModule = new MidiMapperModule(); // Generate a strange warning... About deprecated :(
 	//this->module = nullptr; // Fix ? for the random bug below... Or not :(
-	setModule(thisModule);
+	setModule(midiMapperModule);
 	box.size = Vec(4 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT); // (4 * 15, 380)
 	// AMHA : strange construction...
 	{
@@ -51,16 +50,16 @@ MidiMapperWidget::MidiMapperWidget()
 	}
 	*/
 
-	thisMapSwitch = createParam<NKK>(Vec(14, 129), thisModule, MidiMapperModule::MAP_PARAM, 0.0, 1.0, 0.0); // NKK ?
-	addParam(thisMapSwitch);
-	addChild(createLight<LargeLight<RedLight>>(Vec(23,  54), thisModule, MidiMapperModule::M_RED_LIGHT));
-	addChild(createLight<LargeLight<YellowLight>>(Vec(23,  78), thisModule, MidiMapperModule::M_YEL_LIGHT));
-	addChild(createLight<LargeLight<BlueLight>>(Vec(23, 102), thisModule, MidiMapperModule::M_BLU_LIGHT));
-	thisLearnSwitch = createParam<NKK>(Vec(14, 209), thisModule, MidiMapperModule::LEARN_PARAM, 0.0, 1.0, 0.0);
-	addParam(thisLearnSwitch);
-	addChild(createLight<LargeLight<RedLight>>(Vec(23,  134), thisModule, MidiMapperModule::L_RED_LIGHT));
-	addChild(createLight<LargeLight<YellowLight>>(Vec(23,  158), thisModule, MidiMapperModule::L_YEL_LIGHT));
-	addChild(createLight<LargeLight<BlueLight>>(Vec(23, 182), thisModule, MidiMapperModule::L_BLU_LIGHT));
+	mapSwitch = createParam<NKK>(Vec(14, 129), midiMapperModule, MidiMapperModule::MAP_PARAM, 0.0, 1.0, 0.0); // NKK ?
+	addParam(mapSwitch);
+	addChild(createLight<LargeLight<RedLight>>(Vec(23,  54), midiMapperModule, MidiMapperModule::M_RED_LIGHT));
+	addChild(createLight<LargeLight<YellowLight>>(Vec(23,  78), midiMapperModule, MidiMapperModule::M_YEL_LIGHT));
+	addChild(createLight<LargeLight<BlueLight>>(Vec(23, 102), midiMapperModule, MidiMapperModule::M_BLU_LIGHT));
+	learnSwitch = createParam<NKK>(Vec(14, 209), midiMapperModule, MidiMapperModule::LEARN_PARAM, 0.0, 1.0, 0.0);
+	addParam(learnSwitch);
+	addChild(createLight<LargeLight<RedLight>>(Vec(23,  134), midiMapperModule, MidiMapperModule::L_RED_LIGHT));
+	addChild(createLight<LargeLight<YellowLight>>(Vec(23,  158), midiMapperModule, MidiMapperModule::L_YEL_LIGHT));
+	addChild(createLight<LargeLight<BlueLight>>(Vec(23, 182), midiMapperModule, MidiMapperModule::L_BLU_LIGHT));
 
 	logf("MidiMapperWidget ctor ==> Leaving");
 }

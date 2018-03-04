@@ -6,14 +6,15 @@
 using namespace rack;
 
 extern Plugin *thisPlugin;
+extern Module *consoleModule;
 
 ConsoleWidget::ConsoleWidget()
 {
   logf("ConsoleWidget ctor ==> Entering");
 
-  ConsoleModule *cm = new ConsoleModule();
-  setModule(cm);
-  box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT); // (4 * 15, 380)
+  ConsoleModule *consoleModule = new ConsoleModule();
+  setModule(consoleModule);
+  box.size = Vec(16 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
   {
     Panel *panel = new LightPanel();
     panel->backgroundImage = Image::load(assetPlugin(thisPlugin, "res/switch.png"));

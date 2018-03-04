@@ -25,7 +25,7 @@ and obviously to the VCV Rack author (I've started to write a software modular s
 I took also the liberty to reuse part of the AV500 switch module...
 
 Last but not least, I'm reachable here : mderie@gmail.com
-(Sam Le Pirate member of TFL-TDV on the demoscene, but who cares ?-)
+(Sam Le Pirate humble member of TFL-TDV on the demoscene, but who cares ?-)
 
 Christmas 2017 update : support of the midi learn mode
 ------------------------------------------------------
@@ -37,10 +37,14 @@ right inside VCV rack ! Then everything is saved into a new file called
 by cherry picking the content of the "Mapping" section :)
 
 ==> Again I've achieved my personal goal...
-I know that there is here and there some false assumptions (ie : dangling pointer :(
+I know that there is here and there some false assumptions
+(ie : that could lead to dangling pointer :(
 
 
 
-The console project is the perfect companion tool : it displays every events inside the rack
+The "new" console project is the perfect companion tool :
+it displays every events inside the rack. One can tune the active filters
 
-...
+
+
+That's all folks!

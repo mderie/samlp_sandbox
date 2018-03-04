@@ -30,7 +30,8 @@ void init(Plugin *p)
   //widget = createModel<MidiMapperWidget>("MidiMapper", "MidiMapper OnOff", "MidiMapper OnOff", UTILITY_TAG);
 	//p->addModel(widget);
 	logf("init ==> Before addModel");
-	p->addModel(createModel<MidiMapperWidget>("MidiMapperModule", "MidiMapperModule", "MidiMapperModule", UTILITY_TAG));
+	p->addModel(createModel<MidiMapperWidget>("samlp_sandboxPlugin", "MidiMapperWidget", "MidiMapperWidget", UTILITY_TAG));
+        p->addModel(createModel<ConsoleWidget>("samlp_sandboxPlugin", "ConsoleWidget", "ConsoleWidget", UTILITY_TAG));
 	logf("init ==> After addModel");
 
         // Not necessary... Strange visual bug !

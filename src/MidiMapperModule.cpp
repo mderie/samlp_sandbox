@@ -25,9 +25,9 @@ using namespace rack;
 // Some globals...
 extern Plugin *thisPlugin;
 extern ConfigurationFile *cf;
-MidiMapperModule *thisModule = 0;
-ParamWidget *thisMapSwitch = 0;
-ParamWidget *thisLearnSwitch = 0;
+MidiMapperModule *midiMapperModule = 0;
+ParamWidget *mapSwitch = 0;
+ParamWidget *learnSwitch = 0;
 RtMidiIn *rtmidiIn = 0;
 
 bool rackAlreadyDumped = false;
@@ -188,7 +188,7 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
 		std::string sf = cf->keyValue("SignFactor", key);
 		LOGF("midiInCallback ==> key = %s; value = %s; sf = %s", key.c_str(), value.c_str(), sf.c_str());
 
-		if ((thisModule->m_mapMode) and (value != ""))
+		if ((midiMapperModule->m_mapMode) and (value != ""))
 		{
                   if (parameters.find(value) == parameters.end())
                   {
@@ -221,10 +221,10 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
 		}
 		// else : key not mapped ==> Nothing to do !
 
-		if ((thisModule->m_learnMode) and (thisModule->paramWidgetFound))
+		if ((midiMapperModule->m_learnMode) and (midiMapperModule->paramWidgetFound))
 		{
 			logf("midiInCallback ==> Finding widget...");
-			value = findByValue(thisModule->paramWidgetFound);
+			value = findByValue(midiMapperModule->paramWidgetFound);
 			if (value == "")
 			{
 				logf("midiInCallback ==> widget not found !");
@@ -234,7 +234,7 @@ void midiInCallback(double deltatime, std::vector<unsigned char> *message, void 
 			cf->remove("Mapping", key); // Remove the existing mapping if any !
 			cf->remove("SignFactor", key);
 			cf->insert("Mapping", key, value);
-			cf->insert("SignFactor", key, (thisModule->paramWidgetFound->minValue < 0.0 ? "1" : "0"));
+			cf->insert("SignFactor", key, (midiMapperModule->paramWidgetFound->minValue < 0.0 ? "1" : "0"));
 
 			logf("midiInCallback ==> new mapping done !-)");
 		}
@@ -306,7 +306,7 @@ void MidiMapperModule::step()
 			if (m_mapMode)
 			{
 				m_mapMode = false;
-				thisLearnSwitch->visible = true;
+				learnSwitch->visible = true;
 
 				lights[M_RED_LIGHT].value = 0;
 				lights[M_YEL_LIGHT].value = 0;
@@ -323,7 +323,7 @@ void MidiMapperModule::step()
 			if (!m_mapMode)
 			{
 				m_mapMode = true;
-			  thisLearnSwitch->visible = false;
+			  learnSwitch->visible = false;
 
 				lights[M_RED_LIGHT].value = 1;
 				lights[M_YEL_LIGHT].value = 1;
@@ -344,7 +344,7 @@ void MidiMapperModule::step()
 			if (m_learnMode)
 			{
 				m_learnMode = false;
-				thisMapSwitch->visible = true;
+				mapSwitch->visible = true;
 
 				lights[L_RED_LIGHT].value = 0;
 				lights[L_YEL_LIGHT].value = 0;
@@ -361,7 +361,7 @@ void MidiMapperModule::step()
 			if (!m_learnMode)
 			{
 				m_learnMode = true;
-				thisMapSwitch->visible = false;
+				mapSwitch->visible = false;
 
 				lights[L_RED_LIGHT].value = 1;
 				lights[L_YEL_LIGHT].value = 1;

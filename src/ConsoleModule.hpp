@@ -27,6 +27,8 @@ struct ConsoleModule : rack::Module
 	};
 
 	void step() override;
+
+	void feed(const std::string event);
 };
 
-#endif // MIDI_MAPPER_MODULE
+#endif // CONSOLE_MODULE
