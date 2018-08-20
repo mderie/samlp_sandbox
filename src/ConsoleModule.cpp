@@ -10,6 +10,6 @@ void ConsoleModule::step()
 {
 }
 
-void ConsoleModule::feed(const std::string event)
+void ConsoleModule::feed(const std::string event, EventKind ek)
 {
 }

@@ -28,7 +28,9 @@ struct ConsoleModule : rack::Module
 
 	void step() override;
 
-	void feed(const std::string event);
+	enum EventKind = (ekAddCable, ekAddModule, ekRemoveCable, ekRemoveCable);
+
+	void feed(const std::string event, EventKind ek);
 };
 
 #endif // CONSOLE_MODULE
